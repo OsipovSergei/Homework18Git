@@ -1,0 +1,414 @@
+{
+	"info": {
+		"_postman_id": "9545bc92-120e-4355-8c59-6bf504c58ec9",
+		"name": "QA Test https://api.mail.tm/",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Creating account",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const email = pm.variables.replaceIn(\"{{$timestamp}}!{{$randomFirstName}}@metalunits.com\").toLowerCase();\r",
+							"pm.collectionVariables.set(\"email\",email);\r",
+							"console.log(\"мой email = \" + pm.collectionVariables.get(\"email\"));\r",
+							"\r",
+							"const password = pm.variables.replaceIn(\"{{$randomPassword}}!Bd\").toLowerCase();\r",
+							"pm.collectionVariables.set(\"password\",password);\r",
+							"console.log(\"мой password = \" + pm.collectionVariables.get(\"password\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code != 201){postman.setNextRequest(null)\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code created\", () => {\r",
+							"  pm.response.to.have.status(\"Created\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code is 201\", () => {\r",
+							"  pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains expected fields (@context, @id, @type, id, address, quota, used, isDisabled, isDeleted, createdAt, updatedAt)\", function() {\r",
+							"pm.expect(jsonData).to.have.property('@context');\r",
+							"pm.expect(jsonData).to.have.property('@id');\r",
+							"pm.expect(jsonData).to.have.property('@type');\r",
+							"pm.expect(jsonData).to.have.property('id');\r",
+							"pm.expect(jsonData).to.have.property('address');\r",
+							"pm.expect(jsonData).to.have.property('quota');\r",
+							"pm.expect(jsonData).to.have.property('used');\r",
+							"pm.expect(jsonData).to.have.property('isDisabled');\r",
+							"pm.expect(jsonData).to.have.property('isDeleted');\r",
+							"pm.expect(jsonData).to.have.property('createdAt');\r",
+							"pm.expect(jsonData).to.have.property('updatedAt');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Context field is a string\", () => {\r",
+							"pm.expect(jsonData['@context']).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Account field with @id is a string\", () => {\r",
+							"pm.expect(jsonData['@id']).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Type of creation(account) field is a string\", () => {\r",
+							"pm.expect(jsonData['@type']).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"id\", jsonData.id);\r",
+							"console.log(\"id value =\" + pm.collectionVariables.get(\"id\"));\r",
+							"\r",
+							"pm.test(\"id is not null or undefined\", () => {\r",
+							"  pm.expect(jsonData.id).to.be.is.not.oneOf([null, undefined]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"id is a string\", () => {\r",
+							"  pm.expect(jsonData.id).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"address field is a string\", () => {\r",
+							"  pm.expect(jsonData.address).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"quota is a number\", () => {\r",
+							"  pm.expect(jsonData.quota).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"used field is a number\", () => {\r",
+							"  pm.expect(jsonData.used).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"isDisabled field is a boolean\", () => {\r",
+							"  pm.expect(jsonData.isDisabled).to.be.a(\"boolean\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"isDeleted field is a boolean\", () => {\r",
+							"  pm.expect(jsonData.isDeleted).to.be.a(\"boolean\");\r",
+							"});\r",
+							"\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"address\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.mail.tm/accounts",
+					"protocol": "https",
+					"host": [
+						"api",
+						"mail",
+						"tm"
+					],
+					"path": [
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Receiving token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code != 200){postman.setNextRequest(null)\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response contains expected fields (token, id)\", function() {\r",
+							"pm.expect(jsonData).to.have.property('token');\r",
+							"pm.expect(jsonData).to.have.property('id');\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"token\", jsonData.token);\r",
+							"console.log(\"token value =\" + pm.collectionVariables.get(\"token\"));\r",
+							"\r",
+							"pm.test(\"token is not null or undefined\", () => {\r",
+							"  pm.expect(jsonData.token).to.be.is.not.oneOf([null, undefined]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"token is a string\", () => {\r",
+							"  pm.expect(jsonData.token).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"id is a string\", () => {\r",
+							"  pm.expect(jsonData.id).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"address\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.mail.tm/token",
+					"protocol": "https",
+					"host": [
+						"api",
+						"mail",
+						"tm"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Getting messages list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code != 200){postman.setNextRequest(null)\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response contains expected fields (@context, @id, @type, hydra:member, hydra:totalItems)\", function() {\r",
+							"pm.expect(jsonData).to.have.property('@context');\r",
+							"pm.expect(jsonData).to.have.property('@id');\r",
+							"pm.expect(jsonData).to.have.property('@type');\r",
+							"pm.expect(jsonData).to.have.property('hydra:member');\r",
+							"pm.expect(jsonData).to.have.property('hydra:totalItems');\r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Context field is a string\", () => {\r",
+							"pm.expect(jsonData['@context']).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Id box is a string\", () => {\r",
+							"pm.expect(jsonData['@id']).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Type of msg field is a string\", () => {\r",
+							"pm.expect(jsonData['@context']).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Member box is empty\", () => {\r",
+							"pm.expect(jsonData['hydra:member']).to.be.empty;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Msgs box list is a number\", () => {\r",
+							"pm.expect(jsonData['hydra:totalItems']).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.mail.tm/messages",
+					"protocol": "https",
+					"host": [
+						"api",
+						"mail",
+						"tm"
+					],
+					"path": [
+						"messages"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deleting account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code != 204){postman.setNextRequest(null)\r",
+							"\r",
+							"}\r",
+							"else {\r",
+							"\r",
+							"pm.test(\"Status code is 204\", () => {\r",
+							"  pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://api.mail.tm/accounts/{{id}}",
+					"protocol": "https",
+					"host": [
+						"api",
+						"mail",
+						"tm"
+					],
+					"path": [
+						"accounts",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "id",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "id",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "address",
+			"value": ""
+		},
+		{
+			"key": "hydra:totalItems",
+			"value": ""
+		},
+		{
+			"key": "@context",
+			"value": ""
+		}
+	]
+}
